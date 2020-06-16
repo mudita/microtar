@@ -24,16 +24,8 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
-#ifndef TARGET_Linux
-#include <ff_stdio.h>
-#else
-#define ff_fopen fopen
-#define ff_fwrite fwrite
-#define ff_fread fread
-#define ff_fseek fseek
-#define ff_fclose fclose
-#endif
-#include "microtar.h"
+
+#include "microtar.hpp"
 
 typedef struct {
   char name[100];
@@ -132,7 +124,7 @@ static int header_to_raw(mtar_raw_header_t *rh, const mtar_header_t *h) {
   sprintf(rh->owner, "%o", h->owner);
   sprintf(rh->size, "%o", h->size);
   sprintf(rh->mtime, "%o", h->mtime);
-  rh->type = h->type ? h->type : MTAR_TREG;
+  rh->type = h->type ? h->type : (int)MTAR_TREG;
   strcpy(rh->name, h->name);
   strcpy(rh->linkname, h->linkname);
 
@@ -162,22 +154,22 @@ const char* mtar_strerror(int err) {
 
 
 static int file_write(mtar_t *tar, const void *data, unsigned size) {
-  unsigned res = ff_fwrite(data, 1, size, tar->stream);
+  unsigned res = vfs.fwrite(data, 1, size, tar->stream);
   return (res == size) ? MTAR_ESUCCESS : MTAR_EWRITEFAIL;
 }
 
 static int file_read(mtar_t *tar, void *data, unsigned size) {
-  unsigned res = ff_fread(data, 1, size, tar->stream);
+  unsigned res = vfs.fread(data, 1, size, tar->stream);
   return (res == size) ? MTAR_ESUCCESS : MTAR_EREADFAIL;
 }
 
 static int file_seek(mtar_t *tar, unsigned offset) {
-  int res = ff_fseek(tar->stream, offset, SEEK_SET);
+  int res = vfs.fseek(tar->stream, offset, SEEK_SET);
   return (res == 0) ? MTAR_ESUCCESS : MTAR_ESEEKFAIL;
 }
 
 static int file_close(mtar_t *tar) {
-  ff_fclose(tar->stream);
+  vfs.fclose(tar->stream);
   return MTAR_ESUCCESS;
 }
 
@@ -198,7 +190,7 @@ int mtar_open(mtar_t *tar, const char *filename, const char *mode) {
   if ( strchr(mode, 'w') ) mode = "wb";
   if ( strchr(mode, 'a') ) mode = "ab";
   /* Open file */
-  tar->stream = ff_fopen(filename, mode);
+  tar->stream = vfs.fopen(filename, mode);
   if (!tar->stream) {
     return MTAR_EOPENFAIL;
   }

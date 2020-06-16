@@ -8,6 +8,8 @@
 #ifndef MICROTAR_H
 #define MICROTAR_H
 
+#include <vfs.hpp>
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -58,7 +60,7 @@ struct mtar_t {
   int (*write)(mtar_t *tar, const void *data, unsigned size);
   int (*seek)(mtar_t *tar, unsigned pos);
   int (*close)(mtar_t *tar);
-  void *stream;
+  vfs::FILE *stream;
   unsigned pos;
   unsigned remaining_data;
   unsigned last_header;
