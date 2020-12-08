@@ -20,7 +20,7 @@
  * IN THE SOFTWARE.
  */
 
-#include <stdio.h>
+#include <cstdio>
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
@@ -154,22 +154,22 @@ const char* mtar_strerror(int err) {
 
 
 static int file_write(mtar_t *tar, const void *data, unsigned size) {
-  unsigned res = vfs.fwrite(data, 1, size, tar->stream);
+  unsigned res = std::fwrite(data, 1, size, tar->stream);
   return (res == size) ? MTAR_ESUCCESS : MTAR_EWRITEFAIL;
 }
 
 static int file_read(mtar_t *tar, void *data, unsigned size) {
-  unsigned res = vfs.fread(data, 1, size, tar->stream);
+  unsigned res = std::fread(data, 1, size, tar->stream);
   return (res == size) ? MTAR_ESUCCESS : MTAR_EREADFAIL;
 }
 
 static int file_seek(mtar_t *tar, unsigned offset) {
-  int res = vfs.fseek(tar->stream, offset, SEEK_SET);
+  int res = std::fseek(tar->stream, offset, SEEK_SET);
   return (res == 0) ? MTAR_ESUCCESS : MTAR_ESEEKFAIL;
 }
 
 static int file_close(mtar_t *tar) {
-  vfs.fclose(tar->stream);
+  std::fclose(tar->stream);
   return MTAR_ESUCCESS;
 }
 
@@ -190,7 +190,7 @@ int mtar_open(mtar_t *tar, const char *filename, const char *mode) {
   if ( strchr(mode, 'w') ) mode = "wb";
   if ( strchr(mode, 'a') ) mode = "ab";
   /* Open file */
-  tar->stream = vfs.fopen(filename, mode);
+  tar->stream = std::fopen(filename, mode);
   if (!tar->stream) {
     return MTAR_EOPENFAIL;
   }
