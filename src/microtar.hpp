@@ -8,7 +8,6 @@
 #ifndef MICROTAR_H
 #define MICROTAR_H
 
-#include <vfs.hpp>
 
 #ifdef __cplusplus
 extern "C"
